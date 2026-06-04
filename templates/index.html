@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Screening Portal - Smart ATS</title>
+  <!-- Google Fonts: Plus Jakarta Sans (Headers) and Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #080c14;
+      --bg-card: rgba(15, 22, 40, 0.65);
+      --input-bg: rgba(10, 15, 28, 0.8);
+      --border-color: rgba(255, 255, 255, 0.07);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --border-focus: rgba(99, 102, 241, 0.5);
+
+      --accent-brand: #6366f1;
+      /* Indigo */
+      --accent-brand-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      --accent-brand-glow: rgba(99, 102, 241, 0.2);
+
+      --accent-success: #10b981;
+      /* Emerald */
+      --accent-success-glow: rgba(16, 185, 129, 0.15);
+
+      --accent-warning: #f59e0b;
+      /* Amber */
+      --accent-warning-glow: rgba(245, 158, 11, 0.15);
+
+      --accent-danger: #ef4444;
+      /* Rose */
+      --accent-danger-glow: rgba(239, 68, 68, 0.15);
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dark: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-image:
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+      position: relative;
+    }
+
+    /* Ambient Glow Blobs */
+    .ambient-glow {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.06) 0%, rgba(99, 102, 241, 0) 70%);
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(80px);
+      animation: floatGlow 25s infinite alternate ease-in-out;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.04) 0%, rgba(16, 185, 129, 0) 70%);
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(80px);
+      animation: floatGlow 30s infinite alternate-reverse ease-in-out;
+    }
+
+    @keyframes floatGlow {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(8%, 8%) scale(1.15);
+      }
+    }
+
+    /* --- Custom Cursor Architecture --- */
+
+
+    /* --- Preloader Screen Layout --- */
+    #preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-main);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.5s;
+    }
+
+    .preloader-center {
+      text-align: center;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    .preloader-center svg {
+      width: 56px;
+      height: 56px;
+      stroke: var(--accent-brand);
+      fill: none;
+    }
+
+    .preloader-counter {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      font-size: 80px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: -2px;
+      opacity: 0.85;
+    }
+
+    .preloader-counter::after {
+      content: '%';
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-left: 4px;
+      vertical-align: super;
+    }
+
+    /* --- Infinite Text Marquee Underlay --- */
+    .marquee-container {
+      position: fixed;
+      top: 10%;
+      left: 0;
+      width: 100vw;
+      overflow: hidden;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+      opacity: 0.02;
+    }
+
+    .marquee-track {
+      display: inline-flex;
+      gap: 50px;
+      animation: scrollText 30s linear infinite;
+    }
+
+    .marquee-text {
+      font-size: 130px;
+      font-weight: 900;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #ffffff;
+    }
+
+    /* --- Responsive Dashboard Grid --- */
+    .app-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 24px;
+      z-index: 1;
+      position: relative;
+      opacity: 0;
+      transform: scale(0.98) translateY(15px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.loaded .app-container {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* --- Beautiful Glassmorphic Cards --- */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Header styling */
+    .brand-header {
+      margin-bottom: 32px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 30px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .brand-badge svg {
+      width: 14px;
+      height: 14px;
+      stroke: #a5b4fc;
+      fill: none;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -1px;
+      color: #ffffff;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+
+    select {
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 500;
+      outline: none;
+      appearance: none;
+      transition: all 0.25s ease;
+    }
+
+    select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+      background-color: rgba(10, 15, 28, 0.95);
+    }
+
+    .select-wrapper::after {
+      content: "";
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      pointer-events: none;
+    }
+
+    /* File Drop Zone styling */
+    .file-drop-area {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      border: 2px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      background: var(--input-bg);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      min-height: 160px;
+    }
+
+    .file-drop-area:hover,
+    .file-drop-area.dragover {
+      border-color: var(--accent-brand);
+      background: rgba(99, 102, 241, 0.02);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.05);
+    }
+
+    .drop-zone-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+    }
+
+    .upload-icon {
+      width: 42px;
+      height: 42px;
+      fill: none;
+      stroke: var(--accent-brand);
+      stroke-width: 1.5;
+      margin-bottom: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .file-drop-area:hover .upload-icon {
+      transform: translateY(-4px);
+    }
+
+    .file-msg {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .file-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      opacity: 0;
+      z-index: 5;
+    }
+
+    /* Selected File State styling */
+    .file-selected-details {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 4px;
+    }
+
+    .doc-icon {
+      width: 32px;
+      height: 32px;
+      stroke: var(--accent-success);
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    .file-info {
+      flex-grow: 1;
+      text-align: left;
+      min-width: 0;
+      /* allows text truncation */
+    }
+
+    .file-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-remove-file {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 10;
+      /* above file input */
+      width: auto;
+      box-shadow: none;
+    }
+
+    .btn-remove-file:hover {
+      background: rgba(239, 68, 68, 0.18);
+      color: #ef4444;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Primary CTA Button */
+    .btn-submit {
+      width: 100%;
+      padding: 18px;
+      background: var(--accent-brand-gradient);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 18px var(--accent-brand-glow);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 30%;
+      height: 200%;
+      background: linear-gradient(to right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.25) 50%,
+          rgba(255, 255, 255, 0) 100%);
+      transform: rotate(25deg);
+      transition: all 0.75s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .btn-submit:hover::after {
+      left: 130%;
+      opacity: 1;
+      transition: all 0.75s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-submit:hover svg {
+      transform: translateX(4px);
+    }
+
+    /* --- Right Panel Dashboard Content --- */
+    .panel-results {
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .empty-illustration {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      opacity: 0.8;
+    }
+
+    .empty-illustration svg {
+      width: 100%;
+      height: 100%;
+      stroke: var(--accent-brand);
+      stroke-width: 1;
+      fill: none;
+    }
+
+    .empty-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .empty-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 320px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Loading state */
+    .loading-state {
+      text-align: center;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .loading-spinner-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+    }
+
+    .spinner-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid rgba(99, 102, 241, 0.08);
+      border-top-color: var(--accent-brand);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-pulse {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 20px;
+      left: 20px;
+      background: var(--accent-brand-glow);
+      border-radius: 50%;
+      animation: scalePulse 1.8s ease-in-out infinite;
+    }
+
+    .loading-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .loading-status-text {
+      font-size: 13px;
+      color: var(--accent-brand);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Results Dashboard State */
+    .results-content {
+      width: 100%;
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      display: none;
+    }
+
+    .results-header-metrics {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 32px;
+      align-items: center;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 28px;
+    }
+
+    /* SVG Radial Progress Circle */
+    .gauge-container {
+      position: relative;
+      width: 130px;
+      height: 130px;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.04);
+      stroke-width: 9px;
+    }
+
+    .gauge-fill {
+      fill: none;
+      stroke: var(--accent-brand);
+      stroke-width: 9px;
+      stroke-linecap: round;
+      stroke-dasharray: 314.16;
+      stroke-dashoffset: 314.16;
+      transition: stroke-dashoffset 1.4s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.6s ease;
+    }
+
+    .gauge-text {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gauge-percentage {
+      font-size: 30px;
+      font-weight: 800;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .gauge-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* Metrics Right Column */
+    .metrics-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .meta-role-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-brand);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .meta-status-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-pill.eligible {
+      background: var(--accent-success-glow);
+      color: var(--accent-success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-pill.needs-revision {
+      background: var(--accent-warning-glow);
+      color: var(--accent-warning);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-pill svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    .status-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Skills Grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .skills-card {
+      background: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .skills-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .skills-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .skills-card-title svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .skills-card-title.matched svg {
+      stroke: var(--accent-success);
+    }
+
+    .skills-card-title.missing svg {
+      stroke: #f87171;
+    }
+
+    .skills-count-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .skills-count-badge.matched {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-success);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+
+    .skills-count-badge.missing {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .skill-badge {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .skill-badge:hover {
+      transform: translateY(-1px);
+    }
+
+    .skill-badge.found {
+      background: rgba(16, 185, 129, 0.06);
+      border: 1px solid rgba(16, 185, 129, 0.12);
+      color: #34d399;
+    }
+
+    .skill-badge.missing {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .no-skills-msg {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .suggestions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+      list-style: none;
+    }
+
+    .suggestion-item {
+      font-size: 13px;
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-left: 24px;
+      position: relative;
+      background: rgba(255, 255, 255, 0.015);
+      border-radius: 8px;
+      padding: 12px 14px 12px 34px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .suggestion-item::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 18px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-brand);
+      box-shadow: 0 0 8px var(--accent-brand);
+    }
+
+    .pop-in {
+      opacity: 0;
+      transform: scale(0.85) translateY(4px);
+      animation: badgePopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation-delay: calc(var(--i) * 0.04s);
+    }
+
+    @keyframes badgePopIn {
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* --- Animations Layout --- */
+    @keyframes scrollText {
+      0% {
+        transform: translateX(0%);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.6;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes scalePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.4;
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: 0.7;
+      }
+    }
+
+    /* --- Precise Mobile/Tablet Viewport Breakpoints --- */
+    @media (max-width: 900px) {
+      .app-container {
+        padding: 40px 16px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .card {
+        padding: 30px 24px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .marquee-text {
+        font-size: 70px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .results-header-metrics {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        gap: 20px;
+      }
+
+      .status-pill {
+        justify-content: center;
+      }
+
+      .preloader-counter {
+        bottom: 24px;
+        right: 24px;
+        font-size: 50px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background Decorative Glowing Elements -->
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Custom Cursor Markups -->
+  <div class="custom-cursor-dot" id="cursorDot"></div>
+  <div class="custom-cursor-outline" id="cursorOutline"></div>
+
+  <!-- Infinite Text Scrolling Underlay -->
+  <div class="marquee-container">
+    <div class="marquee-track">
+      <span class="marquee-text">CANDIDATE SCREENING • RECRUITER PORTAL • ATS PROFILE EVALUATOR • FIT SCORE INDEX • VERIFY COMPETENCY • </span>
+      <span class="marquee-text">CANDIDATE SCREENING • RECRUITER PORTAL • ATS PROFILE EVALUATOR • FIT SCORE INDEX • VERIFY COMPETENCY • </span>
+    </div>
+  </div>
+
+  <!-- Preloader Module Structure -->
+  <div id="preloader">
+    <div class="preloader-center">
+      <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+      </svg>
+    </div>
+    <div class="preloader-counter" id="loadCounter">0</div>
+  </div>
+
+  <div class="app-container">
+    <div class="dashboard-grid">
+
+      <!-- LEFT COLUMN: Control Panel -->
+      <div class="card">
+        <div class="brand-header">
+          <div class="brand-badge">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            Smart ATS Recruiter Engine
+          </div>
+          <h1>Candidate Screen</h1>
+          <p class="subtitle">Upload a candidate's resume and select the target opening to calculate fit index and evaluation metrics.</p>
+        </div>
+
+        <form id="uploadForm">
+          <div class="form-group">
+            <label for="role">Target Job Position</label>
+            <div class="select-wrapper">
+              <select name="role" id="role">
+                <option value="cloud_engineer">Cloud Engineer</option>
+                <option value="java_developer">Java Developer</option>
+                <option value="data_scientist">Data Scientist</option>
+                <option value="frontend_developer">Frontend Developer</option>
+                <option value="backend_developer">Backend Developer</option>
+                <option value="devops_engineer">DevOps Engineer</option>
+                <option value="cybersecurity_analyst">Cybersecurity Analyst</option>
+                <option value="qa_automation_engineer">QA Automation Engineer</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Candidate Resume Document</label>
+            <div class="file-drop-area" id="dropArea">
+              <input type="file" name="resume" id="resume" accept=".pdf,.docx,.doc" required>
+
+              <!-- State 1: Drop Zone Prompt -->
+              <div class="drop-zone-content" id="dropZonePrompt">
+                <svg class="upload-icon" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span class="file-msg">Drag & drop candidate CV here</span>
+                <span class="file-hint">Accepts PDF, DOCX up to 10MB</span>
+              </div>
+
+              <!-- State 2: Selected File Info -->
+              <div class="drop-zone-content" id="dropZoneSelected" style="display: none;">
+                <div class="file-selected-details">
+                  <svg class="doc-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                  <div class="file-info">
+                    <div class="file-name" id="selectedFileName">filename.pdf</div>
+                    <div class="file-size" id="selectedFileSize">0 KB</div>
+                  </div>
+                  <button type="button" class="btn-remove-file" id="btnRemoveFile">Remove</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnSubmit">
+            <span>Screen Candidate Profile</span>
+            <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </form>
+        <div style="text-align: center; margin-top: 16px;">
+          <span class="file-hint">Or, <a href="#" id="lnkUseSample"
+              style="color: var(--accent-brand); text-decoration: underline; font-weight: 600;">use the demo CV</a>
+            to test instantly</span>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Dashboard & Analytics -->
+      <div class="card panel-results">
+
+        <!-- State A: Empty State -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-illustration">
+            <svg viewBox="0 0 24 24" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+            </svg>
+          </div>
+          <h2 class="empty-title">Awaiting Candidate CV</h2>
+          <p class="empty-desc">Upload a candidate resume and select the target job position. The recruiter analytics engine will output fit percentage, ATS score, and evaluation notes here.</p>
+        </div>
+
+        <!-- State B: Loading state -->
+        <div class="loading-state" id="loadingState" style="display: none;">
+          <div class="loading-spinner-wrapper">
+            <div class="spinner-ring"></div>
+            <div class="loading-pulse"></div>
+          </div>
+          <h2 class="loading-title">Screening Candidate Profile</h2>
+          <div class="loading-status-text" id="loadingStatusText">Parsing profile content...</div>
+        </div>
+
+        <!-- State C: Results state -->
+        <div class="results-content" id="resultsContent">
+
+          <div class="results-header-metrics">
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+              <!-- Circular SVG Progress Bar: Match Score -->
+              <div class="gauge-container">
+                <svg class="gauge-svg" viewBox="0 0 120 120">
+                  <circle class="gauge-bg" cx="60" cy="60" r="50" />
+                  <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50" />
+                </svg>
+                <div class="gauge-text">
+                  <span class="gauge-percentage" id="resPercent">0%</span>
+                  <span class="gauge-label">Keyword Fit</span>
+                </div>
+              </div>
+
+              <!-- Circular SVG Progress Bar: ATS Score -->
+              <div class="gauge-container">
+                <svg class="gauge-svg" viewBox="0 0 120 120">
+                  <circle class="gauge-bg" cx="60" cy="60" r="50" />
+                  <circle class="gauge-fill" id="gaugeAtsFill" cx="60" cy="60" r="50" />
+                </svg>
+                <div class="gauge-text">
+                  <span class="gauge-percentage" id="resAtsPercent">0</span>
+                  <span class="gauge-label">Recruiter Score</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Metadata -->
+            <div class="metrics-summary">
+              <div class="meta-role-name" id="resRole">Software Engineer</div>
+              <div class="meta-status-container">
+                <div class="status-pill eligible" id="resStatusPill">
+                  <!-- Dynamic SVG check/cross icon inside JS -->
+                  <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    id="statusPillIcon">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span id="resStatus">Eligible</span>
+                </div>
+              </div>
+              <p class="status-desc" id="resStatusDesc">Your skills strongly align with target standards for this role.
+              </p>
+            </div>
+          </div>
+
+          <!-- Skills breakdown lists -->
+          <div class="skills-grid">
+
+            <!-- Matched Skills -->
+            <div class="skills-card">
+              <div class="skills-card-header">
+                <div class="skills-card-title matched">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 8 8 12 12 16"></polyline>
+                    <line x1="16" y1="12" x2="8" y2="12"></line>
+                  </svg>
+                  Identified Competencies
+                </div>
+                <div class="skills-count-badge matched" id="matchedCount">0 found</div>
+              </div>
+              <div class="skills-list" id="resSkillsFound"></div>
+            </div>
+
+            <!-- Missing Skills -->
+            <div class="skills-card">
+              <div class="skills-card-header">
+                <div class="skills-card-title missing">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  Missing Competencies
+                </div>
+                <div class="skills-count-badge missing" id="missingCount">0 missing</div>
+              </div>
+              <div class="skills-list" id="resSkillsMissing"></div>
+            </div>
+
+            <!-- ATS Suggestions Card -->
+            <div class="skills-card" style="grid-column: 1 / -1;">
+              <div class="skills-card-header">
+                <div class="skills-card-title" style="color: var(--accent-brand);">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"
+                    style="stroke: var(--accent-brand); width: 16px; height: 16px; fill: none; stroke-width: 2;">
+                    <path
+                      d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                    </path>
+                  </svg>
+                  Recruiter Assessment Notes
+                </div>
+              </div>
+              <ul class="suggestions-list" id="resSuggestions"></ul>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // --- Custom Cursor Engine Hooks ---
+    const dot = document.getElementById('cursorDot');
+    const outline = document.getElementById('cursorOutline');
+
+    if (window.matchMedia('(pointer: fine)').matches) {
+      window.addEventListener('mousemove', (e) => {
+        dot.style.left = `${e.clientX}px`;
+        dot.style.top = `${e.clientY}px`;
+
+        outline.animate({
+          left: `${e.clientX}px`,
+          top: `${e.clientY}px`
+        }, { duration: 240, fill: "forwards" });
+      });
+
+      const updateCursorHover = () => {
+        const interactiveTargets = 'button, input, select, a, .file-drop-area, #btnRemoveFile, option';
+        document.querySelectorAll(interactiveTargets).forEach(element => {
+          // Remove old listeners to avoid multiple binding
+          element.removeEventListener('mouseenter', addCursorHover);
+          element.removeEventListener('mouseleave', removeCursorHover);
+          element.addEventListener('mouseenter', addCursorHover);
+          element.addEventListener('mouseleave', removeCursorHover);
+        });
+      };
+
+      const addCursorHover = () => document.body.classList.add('cursor-hovering');
+      const removeCursorHover = () => document.body.classList.remove('cursor-hovering');
+
+      // Initial trigger
+      updateCursorHover();
+
+      // Monitor changes to update bindings if elements change
+      const observer = new MutationObserver(updateCursorHover);
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // --- Preloader Counter Sequence ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const counterNode = document.getElementById('loadCounter');
+      const loaderNode = document.getElementById('preloader');
+      let currentVal = 0;
+
+      const processingTimer = setInterval(() => {
+        currentVal += Math.floor(Math.random() * 5) + 3;
+
+        if (currentVal >= 100) {
+          currentVal = 100;
+          clearInterval(processingTimer);
+
+          setTimeout(() => {
+            loaderNode.style.opacity = '0';
+            loaderNode.style.visibility = 'hidden';
+            document.body.classList.add('loaded');
+          }, 150);
+        }
+        counterNode.innerText = currentVal;
+      }, 25);
+    });
+
+    // --- Core Dynamic App Interface Handlers ---
+    const fileInput = document.getElementById("resume");
+    const dropArea = document.getElementById("dropArea");
+    const dropZonePrompt = document.getElementById("dropZonePrompt");
+    const dropZoneSelected = document.getElementById("dropZoneSelected");
+    const selectedFileName = document.getElementById("selectedFileName");
+    const selectedFileSize = document.getElementById("selectedFileSize");
+    const btnRemoveFile = document.getElementById("btnRemoveFile");
+    const form = document.getElementById("uploadForm");
+    const roleSelect = document.getElementById("role");
+    const btnSubmit = document.getElementById("btnSubmit");
+    const lnkUseSample = document.getElementById("lnkUseSample");
+
+    let useSample = false;
+
+    // File Drag and Drop Listeners
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropArea.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropArea.classList.remove('dragover');
+      }, false);
+    });
+
+    // Handle Drop
+    dropArea.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        useSample = false;
+        fileInput.files = files;
+        updateFileState(files[0]);
+      }
+    });
+
+    // Handle File Input Change
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        useSample = false;
+        updateFileState(e.target.files[0]);
+      }
+    });
+
+    // Remove File click handler
+    btnRemoveFile.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resetFileState();
+    });
+
+    // Use Demo Resume click handler
+    lnkUseSample.addEventListener('click', (e) => {
+      e.preventDefault();
+      useSample = true;
+      selectedFileName.innerText = "demo_resume.pdf";
+      selectedFileSize.innerText = "45.8 KB";
+
+      dropZonePrompt.style.display = "none";
+      dropZoneSelected.style.display = "flex";
+      dropArea.style.borderColor = "var(--accent-success)";
+
+      // Temporarily remove required attribute
+      fileInput.removeAttribute('required');
+    });
+
+    // Update File UI State
+    function updateFileState(file) {
+      // Validate File Extension
+      const allowedExtensions = /(\.pdf|\.docx|\.doc)$/i;
+      if (!allowedExtensions.exec(file.name)) {
+        alert("Unsupported format. Please upload a PDF or Word document (.docx, .doc).");
+        resetFileState();
+        return;
+      }
+
+      selectedFileName.innerText = file.name;
+
+      // Calculate readable size
+      let sizeText = "";
+      if (file.size < 1024 * 1024) {
+        sizeText = (file.size / 1024).toFixed(1) + " KB";
+      } else {
+        sizeText = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      }
+      selectedFileSize.innerText = sizeText;
+
+      dropZonePrompt.style.display = "none";
+      dropZoneSelected.style.display = "flex";
+      dropArea.style.borderColor = "var(--accent-success)";
+    }
+
+    // Reset File UI State
+    function resetFileState() {
+      fileInput.value = "";
+      useSample = false;
+      dropZonePrompt.style.display = "flex";
+      dropZoneSelected.style.display = "none";
+      dropArea.style.borderColor = "rgba(255, 255, 255, 0.12)";
+      fileInput.setAttribute('required', 'required');
+    }
+
+    // Auto submit if target role changes and file is already loaded
+    roleSelect.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        form.requestSubmit();
+      }
+    });
+
+    // Form Submission
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      if (!useSample && fileInput.files.length === 0) {
+        alert("Please upload a candidate resume document.");
+        return;
+      }
+
+      // 1. Enter Loading State
+      const emptyState = document.getElementById("emptyState");
+      const loadingState = document.getElementById("loadingState");
+      const resultsContent = document.getElementById("resultsContent");
+      const loadingStatusText = document.getElementById("loadingStatusText");
+
+      emptyState.style.display = "none";
+      resultsContent.style.display = "none";
+      loadingState.style.display = "block";
+
+      // Disable submission while executing
+      btnSubmit.disabled = true;
+      btnSubmit.querySelector('span').innerText = "Screening CV...";
+
+      // Fake Loading messages to feel like real AI processing
+      const loadingPhrases = [
+        "Reading candidate document streams...",
+        "Extracting profile credentials...",
+        "Running semantic background matches...",
+        "Calculating candidate compliance index...",
+        "Generating recruitment report..."
+      ];
+      let phraseIndex = 0;
+      const statusInterval = setInterval(() => {
+        if (phraseIndex < loadingPhrases.length - 1) {
+          phraseIndex++;
+          loadingStatusText.innerText = loadingPhrases[phraseIndex];
+        }
+      }, 700);
+
+      // 2. Perform API Post
+      let formData = new FormData();
+      if (useSample) {
+        formData.append("use_sample", "true");
+      } else {
+        formData.append("resume", fileInput.files[0]);
+      }
+      formData.append("role", roleSelect.value);
+
+      try {
+        let response = await fetch("/upload", { method: "POST", body: formData });
+
+        if (!response.ok) {
+          throw new Error("Server returned an error");
+        }
+
+        let data = await response.json();
+
+        // Wait a small buffer to let the user see the transition
+        setTimeout(() => {
+          clearInterval(statusInterval);
+
+          // Show Results container
+          loadingState.style.display = "none";
+          resultsContent.style.display = "block";
+
+          // Update data elements
+          const roleLabel = data.role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+          document.getElementById("resRole").innerText = roleLabel;
+
+          const percentage = data.percentage || 0;
+          const atsScore = data.ats_score || 0;
+
+          // Count-up value animations
+          animateValue("resPercent", 0, Math.round(percentage), 1200);
+          animateValue("resAtsPercent", 0, atsScore, 1200);
+
+          // Animate Keyword Match Gauge
+          const circleFill = document.getElementById("gaugeFill");
+          const strokeOffset = 314.16 - (314.16 * percentage) / 100;
+          circleFill.style.strokeDashoffset = strokeOffset;
+
+          // Animate ATS Score Gauge
+          const circleAtsFill = document.getElementById("gaugeAtsFill");
+          const strokeAtsOffset = 314.16 - (314.16 * atsScore) / 100;
+          circleAtsFill.style.strokeDashoffset = strokeAtsOffset;
+
+          // Status details
+          const statusPill = document.getElementById("resStatusPill");
+          const statusText = document.getElementById("resStatus");
+          const statusIcon = document.getElementById("statusPillIcon");
+          const statusDesc = document.getElementById("resStatusDesc");
+
+          if (data.status === "Eligible") {
+            statusText.innerText = "Shortlisted";
+            statusPill.className = "status-pill eligible";
+            statusIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
+            statusDesc.innerText = `Overall ATS Score (${atsScore}/100) is strong. Candidate profile is highly recommended.`;
+
+            // Confetti party
+            triggerConfetti();
+          } else {
+            statusText.innerText = "Requires Review";
+            statusPill.className = "status-pill needs-revision";
+            statusIcon.innerHTML = `<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>`;
+            statusDesc.innerText = `Overall ATS Score (${atsScore}/100) is below threshold. Manual verification is recommended.`;
+          }
+
+          // Process skills found
+          const skillsFoundContainer = document.getElementById("resSkillsFound");
+          skillsFoundContainer.innerHTML = "";
+          const foundCount = data.skills_found.length;
+          document.getElementById("matchedCount").innerText = `${foundCount} found`;
+
+          if (foundCount === 0) {
+            skillsFoundContainer.innerHTML = `<span class="no-skills-msg">No matching core skills identified.</span>`;
+          } else {
+            data.skills_found.forEach((skill, idx) => {
+              const span = document.createElement('span');
+              span.className = "skill-badge found pop-in";
+              span.style.setProperty('--i', idx);
+              span.innerText = skill;
+              skillsFoundContainer.appendChild(span);
+            });
+          }
+
+          // Process skills missing
+          const skillsMissingContainer = document.getElementById("resSkillsMissing");
+          skillsMissingContainer.innerHTML = "";
+          const missingCount = data.skills_missing ? data.skills_missing.length : 0;
+          document.getElementById("missingCount").innerText = `${missingCount} missing`;
+
+          if (missingCount === 0) {
+            skillsMissingContainer.innerHTML = `<span class="no-skills-msg">Excellent! All required core skills are present.</span>`;
+          } else {
+            data.skills_missing.forEach((skill, idx) => {
+              const span = document.createElement('span');
+              span.className = "skill-badge missing pop-in";
+              span.style.setProperty('--i', idx);
+              span.innerText = skill;
+              skillsMissingContainer.appendChild(span);
+            });
+          }
+
+          // Process suggestions
+          const suggestionsContainer = document.getElementById("resSuggestions");
+          suggestionsContainer.innerHTML = "";
+
+          if (!data.suggestions || data.suggestions.length === 0) {
+            suggestionsContainer.innerHTML = `<li class="suggestion-item pop-in" style="--i: 0">Your resume is perfectly optimized! No improvements needed.</li>`;
+          } else {
+            data.suggestions.forEach((suggestion, idx) => {
+              const li = document.createElement('li');
+              li.className = "suggestion-item pop-in";
+              li.style.setProperty('--i', idx + 2); // staggered offset
+              li.innerText = suggestion;
+              suggestionsContainer.appendChild(li);
+            });
+          }
+
+          // Reset button text
+          btnSubmit.disabled = false;
+          btnSubmit.querySelector('span').innerText = "Screen Candidate Profile";
+
+        }, 800);
+
+      } catch (error) {
+        clearInterval(statusInterval);
+        console.error("Analysis processing error:", error);
+        alert("Failed to analyze resume. Please try again.");
+
+        loadingState.style.display = "none";
+        emptyState.style.display = "block";
+        btnSubmit.disabled = false;
+        btnSubmit.querySelector('span').innerText = "Screen Candidate Profile";
+      }
+    };
+
+    // --- Next-Level Micro-Animations Engine ---
+
+    // 1. Number Count-up Animation
+    function animateValue(id, start, end, duration) {
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        obj.innerText = id === "resPercent" ? `${value}%` : `${value}`;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    // 2. 3D Tilt Effect on Cards
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const xc = rect.width / 2;
+        const yc = rect.height / 2;
+        const dx = x - xc;
+        const dy = y - yc;
+
+        const maxTilt = 4; // degrees
+        const tiltX = (dy / yc) * maxTilt * -1;
+        const tiltY = (dx / xc) * maxTilt;
+
+        card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-2px)`;
+        card.style.transition = 'transform 0.05s ease';
+      });
+
+      card.style.transformStyle = 'preserve-3d';
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+        card.style.transition = 'transform 0.5s ease';
+      });
+    });
+
+    // 3. Parallax Background Glowing Blobs
+    const blob1 = document.querySelector('.ambient-glow');
+    const blob2 = document.querySelector('.ambient-glow-2');
+    window.addEventListener('mousemove', (e) => {
+      const moveX = (e.clientX - window.innerWidth / 2) * 0.02;
+      const moveY = (e.clientY - window.innerHeight / 2) * 0.02;
+
+      blob1.style.transform = `translate(${moveX}px, ${moveY}px) scale(1)`;
+      blob2.style.transform = `translate(${-moveX}px, ${-moveY}px) scale(1)`;
+    });
+
+    // 4. Lightweight Confetti Success Celebration
+    function triggerConfetti() {
+      const count = 40;
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'fixed';
+        particle.style.zIndex = '9999';
+        particle.style.width = Math.random() * 8 + 6 + 'px';
+        particle.style.height = Math.random() * 12 + 6 + 'px';
+
+        const colors = ['#6366f1', '#10b981', '#a5b4fc', '#34d399', '#f59e0b'];
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.top = '-20px';
+        particle.style.borderRadius = '2px';
+        particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+        document.body.appendChild(particle);
+
+        const destX = (Math.random() - 0.5) * 300;
+        const destY = window.innerHeight + 100;
+        const rotation = Math.random() * 720 - 360;
+        const duration = Math.random() * 1500 + 1500;
+
+        particle.animate([
+          { top: '-20px', transform: 'rotate(0deg) translateX(0px)' },
+          { top: destY + 'px', transform: `rotate(${rotation}deg) translateX(${destX}px)` }
+        ], {
+          duration: duration,
+          easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
+          fill: 'forwards'
+        });
+
+        setTimeout(() => {
+          particle.remove();
+        }, duration);
+      }
+    }
+  </script>
+</body>
+
+</html>
