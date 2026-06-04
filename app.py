@@ -119,71 +119,110 @@ def upload():
     role = request.form.get("role", "")
     use_sample = request.form.get("use_sample", "false") == "true"
     
+    files_to_process = []
+    
     if use_sample:
         filename = "resume.pdf"
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         if not os.path.exists(file_path):
             return jsonify({"error": "Sample resume not found on server"}), 404
+        files_to_process.append((filename, file_path))
     else:
-        # Defensive check: ensure the file exists in the request
-        if "resume" not in request.files or request.files["resume"].filename == '':
+        # Check both "resumes" and "resume" keys in request.files
+        uploaded_files = request.files.getlist("resumes")
+        if not uploaded_files or (len(uploaded_files) == 1 and uploaded_files[0].filename == ''):
+            uploaded_files = request.files.getlist("resume")
+            
+        if not uploaded_files or (len(uploaded_files) == 1 and uploaded_files[0].filename == ''):
             return jsonify({"error": "No resume file uploaded"}), 400
             
-        file = request.files["resume"]
-        filename = secure_filename(file.filename)
-        if not filename:
-            filename = "uploaded_resume"
+        # Hard limit of 99 files
+        if len(uploaded_files) > 99:
+            return jsonify({"error": "Maximum 99 resumes allowed at a time"}), 400
             
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
-
-    resume_text = extract_text(file_path)
+        for file in uploaded_files:
+            filename = secure_filename(file.filename)
+            if not filename:
+                filename = f"uploaded_resume_{len(files_to_process)}"
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            files_to_process.append((filename, file_path))
+            
+    # Process files
+    results = []
     required_skills = job_roles.get(role, [])
     
-    # Calculate structure and format
-    structure_info = analyze_structure_and_format(resume_text, file_path)
-    
-    # Keyword extraction math
-    matched = [skill for skill in required_skills if skill in resume_text]
-    missing = [skill for skill in required_skills if skill not in matched]
-    
-    keyword_ratio = len(matched) / len(required_skills) if required_skills else 0
-    keyword_score = keyword_ratio * 60
-    
-    ats_score = keyword_score + structure_info["section_score"] + structure_info["format_score"]
-    status = "Eligible" if ats_score >= 60 else "Requires Review"
-
-    # Build recommendations list
-    suggestions = []
-    
-    # Skill gap recommendations
-    if missing:
-        suggestions.append(f"Candidate is missing core competencies: {', '.join(missing[:4])}. Flag this for interview verification.")
+    for filename, file_path in files_to_process:
+        try:
+            resume_text = extract_text(file_path)
+            if not resume_text.strip():
+                raise ValueError("Could not extract any text from the file")
+                
+            # Calculate structure and format
+            structure_info = analyze_structure_and_format(resume_text, file_path)
+            
+            # Keyword extraction math
+            matched = [skill for skill in required_skills if skill in resume_text]
+            missing = [skill for skill in required_skills if skill not in matched]
+            
+            keyword_ratio = len(matched) / len(required_skills) if required_skills else 0
+            keyword_score = keyword_ratio * 60
+            
+            ats_score = keyword_score + structure_info["section_score"] + structure_info["format_score"]
+            status = "Eligible" if ats_score >= 60 else "Requires Review"
         
-    # Section gap recommendations
-    for m_sec in structure_info["missing"]:
-        suggestions.append(f"Dedicated '{m_sec.capitalize()}' section was not detected in the document structure.")
-        
-    # Role-specific recommendations
-    role_tips = role_suggestions.get(role, [])
-    suggestions.extend(role_tips[:2]) # Take 2 role tips
+            # Build recommendations list
+            suggestions = []
+            
+            # Skill gap recommendations
+            if missing:
+                suggestions.append(f"Candidate is missing core competencies: {', '.join(missing[:4])}. Flag this for interview verification.")
+                
+            # Section gap recommendations
+            for m_sec in structure_info["missing"]:
+                suggestions.append(f"Dedicated '{m_sec.capitalize()}' section was not detected in the document structure.")
+                
+            # Role-specific recommendations
+            role_tips = role_suggestions.get(role, [])
+            suggestions.extend(role_tips[:2]) # Take 2 role tips
+            
+            # General recommendations based on score
+            if ats_score < 50:
+                suggestions.append("Profile shows low alignment metrics. A thorough technical phone screening is strongly advised.")
+            elif ats_score < 80:
+                suggestions.append("Candidate demonstrates average keyword overlap. Standard technical rounds recommended.")
+            else:
+                suggestions.append("Candidate displays excellent keyword matching. Proceed directly to final round hiring manager review.")
+                
+            results.append({
+                "filename": filename,
+                "role": role, 
+                "skills_found": matched, 
+                "skills_missing": missing, 
+                "percentage": keyword_ratio * 100, 
+                "ats_score": int(ats_score),
+                "status": status,
+                "suggestions": suggestions
+            })
+        except Exception as e:
+            results.append({
+                "filename": filename,
+                "role": role,
+                "error": str(e),
+                "status": "Error",
+                "ats_score": 0,
+                "percentage": 0,
+                "skills_found": [],
+                "skills_missing": required_skills,
+                "suggestions": [f"Error processing file: {str(e)}"]
+            })
+            
+    # Sort results by ats_score descending
+    results.sort(key=lambda x: x["ats_score"], reverse=True)
     
-    # General recommendations based on score
-    if ats_score < 50:
-        suggestions.append("Profile shows low alignment metrics. A thorough technical phone screening is strongly advised.")
-    elif ats_score < 80:
-        suggestions.append("Candidate demonstrates average keyword overlap. Standard technical rounds recommended.")
-    else:
-        suggestions.append("Candidate displays excellent keyword matching. Proceed directly to final round hiring manager review.")
-
     return jsonify({
-        "role": role, 
-        "skills_found": matched, 
-        "skills_missing": missing, 
-        "percentage": keyword_ratio * 100, 
-        "ats_score": int(ats_score),
-        "status": status,
-        "suggestions": suggestions
+        "role": role,
+        "candidates": results
     })
 
 if __name__ == "__main__":

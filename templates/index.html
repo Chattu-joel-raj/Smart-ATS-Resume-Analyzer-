@@ -338,6 +338,7 @@
       background: var(--input-bg);
       transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
       min-height: 160px;
+      cursor: pointer;
     }
 
     .file-drop-area:hover,
@@ -382,13 +383,7 @@
     }
 
     input[type="file"] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 100%;
-      opacity: 0;
-      z-index: 5;
+      display: none;
     }
 
     /* Selected File State styling */
@@ -953,6 +948,170 @@
       }
     }
 
+    /* --- Custom Scrollbar Styles for lists --- */
+    .selected-files-list::-webkit-scrollbar,
+    .leaderboard-list-wrapper::-webkit-scrollbar {
+      width: 5px;
+    }
+    .selected-files-list::-webkit-scrollbar-track,
+    .leaderboard-list-wrapper::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.01);
+      border-radius: 4px;
+    }
+    .selected-files-list::-webkit-scrollbar-thumb,
+    .leaderboard-list-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    .selected-files-list::-webkit-scrollbar-thumb:hover,
+    .leaderboard-list-wrapper::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.3);
+    }
+
+    /* --- Selected File Item Pill Layout --- */
+    .selected-file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 10px 14px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+      cursor: default;
+    }
+
+    .selected-file-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .selected-file-item .file-details {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0; /* allows text truncation */
+      flex-grow: 1;
+    }
+
+    .selected-file-item .file-item-icon {
+      width: 20px;
+      height: 20px;
+      stroke: var(--accent-brand);
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    .selected-file-item .file-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .selected-file-item .file-item-size {
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .selected-file-item .btn-remove-item {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .selected-file-item .btn-remove-item:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .selected-file-item .btn-remove-item svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    /* --- Recruiter Leaderboard Rows --- */
+    .leaderboard-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .leaderboard-row:hover {
+      background: rgba(99, 102, 241, 0.04);
+      border-color: rgba(99, 102, 241, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .leaderboard-row.active {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    }
+
+    .leaderboard-candidate-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leaderboard-score-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .leaderboard-status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .leaderboard-status-badge.eligible {
+      color: var(--accent-success);
+    }
+
+    .leaderboard-status-badge.review {
+      color: var(--accent-warning);
+    }
+
+    .leaderboard-status-badge.error {
+      color: var(--accent-danger);
+    }
+
     /* --- Precise Mobile/Tablet Viewport Breakpoints --- */
     @media (max-width: 900px) {
       .app-container {
@@ -1060,9 +1219,9 @@
           </div>
 
           <div class="form-group">
-            <label>Candidate Resume Document</label>
+            <label>Candidate Resume Documents (up to 99)</label>
             <div class="file-drop-area" id="dropArea">
-              <input type="file" name="resume" id="resume" accept=".pdf,.docx,.doc" required>
+              <input type="file" name="resumes" id="resume" accept=".pdf,.docx,.doc" multiple>
 
               <!-- State 1: Drop Zone Prompt -->
               <div class="drop-zone-content" id="dropZonePrompt">
@@ -1072,26 +1231,18 @@
                   <polyline points="17 8 12 3 7 8"></polyline>
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
-                <span class="file-msg">Drag & drop candidate CV here</span>
-                <span class="file-hint">Accepts PDF, DOCX up to 10MB</span>
+                <span class="file-msg">Drag & drop candidate CVs here</span>
+                <span class="file-hint">Accepts PDF, DOCX up to 99 files</span>
               </div>
 
-              <!-- State 2: Selected File Info -->
-              <div class="drop-zone-content" id="dropZoneSelected" style="display: none;">
-                <div class="file-selected-details">
-                  <svg class="doc-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                  <div class="file-info">
-                    <div class="file-name" id="selectedFileName">filename.pdf</div>
-                    <div class="file-size" id="selectedFileSize">0 KB</div>
-                  </div>
-                  <button type="button" class="btn-remove-file" id="btnRemoveFile">Remove</button>
+              <!-- State 2: Selected Files List -->
+              <div class="drop-zone-content" id="dropZoneSelected" style="display: none; width: 100%;">
+                <div class="selected-files-summary" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; padding: 0 4px;">
+                  <span id="filesCountBadge" class="skills-count-badge matched" style="font-size: 11px;">0 files selected</span>
+                  <button type="button" class="btn-remove-file" id="btnClearAllFiles" style="padding: 4px 8px; font-size: 11px;">Clear All</button>
+                </div>
+                <div class="selected-files-list" id="selectedFilesList" style="max-height: 180px; overflow-y: auto; width: 100%; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">
+                  <!-- Dynamically populated files list will go here -->
                 </div>
               </div>
 
@@ -1141,103 +1292,124 @@
         <!-- State C: Results state -->
         <div class="results-content" id="resultsContent">
 
-          <div class="results-header-metrics">
-            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-              <!-- Circular SVG Progress Bar: Match Score -->
-              <div class="gauge-container">
-                <svg class="gauge-svg" viewBox="0 0 120 120">
-                  <circle class="gauge-bg" cx="60" cy="60" r="50" />
-                  <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50" />
+          <!-- Leaderboard Section -->
+          <div class="leaderboard-section" id="leaderboardSection" style="margin-bottom: 24px; display: none;">
+            <div class="skills-card-header" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+              <div class="skills-card-title" style="color: var(--accent-brand); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--accent-brand); width: 16px; height: 16px; fill: none; stroke-width: 2;">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                 </svg>
-                <div class="gauge-text">
-                  <span class="gauge-percentage" id="resPercent">0%</span>
-                  <span class="gauge-label">Keyword Fit</span>
-                </div>
+                Candidate Leaderboard
               </div>
-
-              <!-- Circular SVG Progress Bar: ATS Score -->
-              <div class="gauge-container">
-                <svg class="gauge-svg" viewBox="0 0 120 120">
-                  <circle class="gauge-bg" cx="60" cy="60" r="50" />
-                  <circle class="gauge-fill" id="gaugeAtsFill" cx="60" cy="60" r="50" />
-                </svg>
-                <div class="gauge-text">
-                  <span class="gauge-percentage" id="resAtsPercent">0</span>
-                  <span class="gauge-label">Recruiter Score</span>
-                </div>
-              </div>
+              <div class="skills-count-badge matched" id="leaderboardCount" style="font-size: 11px; font-weight: 700;">0 candidates</div>
             </div>
-
-            <!-- Stats Metadata -->
-            <div class="metrics-summary">
-              <div class="meta-role-name" id="resRole">Software Engineer</div>
-              <div class="meta-status-container">
-                <div class="status-pill eligible" id="resStatusPill">
-                  <!-- Dynamic SVG check/cross icon inside JS -->
-                  <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    id="statusPillIcon">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <span id="resStatus">Eligible</span>
-                </div>
-              </div>
-              <p class="status-desc" id="resStatusDesc">Your skills strongly align with target standards for this role.
-              </p>
+            <div class="leaderboard-list-wrapper" id="leaderboardList" style="max-height: 240px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; width: 100%;">
+              <!-- Dynamically populated candidate leaderboard rows -->
             </div>
           </div>
 
-          <!-- Skills breakdown lists -->
-          <div class="skills-grid">
-
-            <!-- Matched Skills -->
-            <div class="skills-card">
-              <div class="skills-card-header">
-                <div class="skills-card-title matched">
-                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 8 8 12 12 16"></polyline>
-                    <line x1="16" y1="12" x2="8" y2="12"></line>
+          <!-- Detailed Candidate Report Section -->
+          <div class="candidate-detail-section" id="candidateDetailSection">
+            <div class="results-header-metrics">
+              <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <!-- Circular SVG Progress Bar: Match Score -->
+                <div class="gauge-container">
+                  <svg class="gauge-svg" viewBox="0 0 120 120">
+                    <circle class="gauge-bg" cx="60" cy="60" r="50" />
+                    <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50" />
                   </svg>
-                  Identified Competencies
+                  <div class="gauge-text">
+                    <span class="gauge-percentage" id="resPercent">0%</span>
+                    <span class="gauge-label">Keyword Fit</span>
+                  </div>
                 </div>
-                <div class="skills-count-badge matched" id="matchedCount">0 found</div>
-              </div>
-              <div class="skills-list" id="resSkillsFound"></div>
-            </div>
 
-            <!-- Missing Skills -->
-            <div class="skills-card">
-              <div class="skills-card-header">
-                <div class="skills-card-title missing">
-                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                <!-- Circular SVG Progress Bar: ATS Score -->
+                <div class="gauge-container">
+                  <svg class="gauge-svg" viewBox="0 0 120 120">
+                    <circle class="gauge-bg" cx="60" cy="60" r="50" />
+                    <circle class="gauge-fill" id="gaugeAtsFill" cx="60" cy="60" r="50" />
                   </svg>
-                  Missing Competencies
-                </div>
-                <div class="skills-count-badge missing" id="missingCount">0 missing</div>
-              </div>
-              <div class="skills-list" id="resSkillsMissing"></div>
-            </div>
-
-            <!-- ATS Suggestions Card -->
-            <div class="skills-card" style="grid-column: 1 / -1;">
-              <div class="skills-card-header">
-                <div class="skills-card-title" style="color: var(--accent-brand);">
-                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"
-                    style="stroke: var(--accent-brand); width: 16px; height: 16px; fill: none; stroke-width: 2;">
-                    <path
-                      d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-                    </path>
-                  </svg>
-                  Recruiter Assessment Notes
+                  <div class="gauge-text">
+                    <span class="gauge-percentage" id="resAtsPercent">0</span>
+                    <span class="gauge-label">Recruiter Score</span>
+                  </div>
                 </div>
               </div>
-              <ul class="suggestions-list" id="resSuggestions"></ul>
+
+              <!-- Stats Metadata -->
+              <div class="metrics-summary">
+                <div class="meta-role-name" id="resRole">Software Engineer</div>
+                <div class="meta-status-container">
+                  <div class="status-pill eligible" id="resStatusPill">
+                    <!-- Dynamic SVG check/cross icon inside JS -->
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      id="statusPillIcon">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span id="resStatus">Eligible</span>
+                  </div>
+                </div>
+                <p class="status-desc" id="resStatusDesc">Your skills strongly align with target standards for this role.
+                </p>
+              </div>
             </div>
 
+            <!-- Skills breakdown lists -->
+            <div class="skills-grid">
+
+              <!-- Matched Skills -->
+              <div class="skills-card">
+                <div class="skills-card-header">
+                  <div class="skills-card-title matched">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 8 8 12 12 16"></polyline>
+                      <line x1="16" y1="12" x2="8" y2="12"></line>
+                    </svg>
+                    Identified Competencies
+                  </div>
+                  <div class="skills-count-badge matched" id="matchedCount">0 found</div>
+                </div>
+                <div class="skills-list" id="resSkillsFound"></div>
+              </div>
+
+              <!-- Missing Skills -->
+              <div class="skills-card">
+                <div class="skills-card-header">
+                  <div class="skills-card-title missing">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Missing Competencies
+                  </div>
+                  <div class="skills-count-badge missing" id="missingCount">0 missing</div>
+                </div>
+                <div class="skills-list" id="resSkillsMissing"></div>
+              </div>
+
+              <!-- ATS Suggestions Card -->
+              <div class="skills-card" style="grid-column: 1 / -1;">
+                <div class="skills-card-header">
+                  <div class="skills-card-title" style="color: var(--accent-brand);">
+                    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"
+                      style="stroke: var(--accent-brand); width: 16px; height: 16px; fill: none; stroke-width: 2;">
+                      <path
+                        d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                      </path>
+                    </svg>
+                    Recruiter Assessment Notes
+                  </div>
+                </div>
+                <ul class="suggestions-list" id="resSuggestions"></ul>
+              </div>
+
+            </div>
           </div>
+
+        </div>
 
         </div>
 
@@ -1312,15 +1484,15 @@
     const dropArea = document.getElementById("dropArea");
     const dropZonePrompt = document.getElementById("dropZonePrompt");
     const dropZoneSelected = document.getElementById("dropZoneSelected");
-    const selectedFileName = document.getElementById("selectedFileName");
-    const selectedFileSize = document.getElementById("selectedFileSize");
-    const btnRemoveFile = document.getElementById("btnRemoveFile");
     const form = document.getElementById("uploadForm");
     const roleSelect = document.getElementById("role");
     const btnSubmit = document.getElementById("btnSubmit");
     const lnkUseSample = document.getElementById("lnkUseSample");
+    const btnClearAllFiles = document.getElementById("btnClearAllFiles");
 
+    let selectedFiles = [];
     let useSample = false;
+    let isSubmitting = false; // Guard against parallel submissions
 
     // File Drag and Drop Listeners
     ['dragenter', 'dragover'].forEach(eventName => {
@@ -1340,108 +1512,314 @@
     // Handle Drop
     dropArea.addEventListener('drop', (e) => {
       const dt = e.dataTransfer;
-      const files = dt.files;
+      const files = Array.from(dt.files);
       if (files.length > 0) {
         useSample = false;
-        fileInput.files = files;
-        updateFileState(files[0]);
+        addFilesToList(files);
       }
+    });
+
+    // Trigger file input click when clicking on the drop area, but NOT on its buttons/list
+    dropArea.addEventListener('click', (e) => {
+      if (e.target.closest('#selectedFilesList') || e.target.closest('#btnClearAllFiles') || e.target.closest('.btn-remove-item')) {
+        return;
+      }
+      // Clear value BEFORE opening picker so re-selecting the same file still fires 'change'
+      fileInput.value = "";
+      fileInput.click();
     });
 
     // Handle File Input Change
     fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
         useSample = false;
-        updateFileState(e.target.files[0]);
+        addFilesToList(files);
+        // NOTE: Do NOT clear fileInput.value here — it would invalidate the File objects
+        // stored in selectedFiles, breaking re-submission when the user changes roles.
       }
     });
 
-    // Remove File click handler
-    btnRemoveFile.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      resetFileState();
-    });
+    // Clear All Files click handler
+    if (btnClearAllFiles) {
+      btnClearAllFiles.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        resetFileState();
+      });
+    }
 
     // Use Demo Resume click handler
     lnkUseSample.addEventListener('click', (e) => {
       e.preventDefault();
       useSample = true;
-      selectedFileName.innerText = "demo_resume.pdf";
-      selectedFileSize.innerText = "45.8 KB";
-
-      dropZonePrompt.style.display = "none";
-      dropZoneSelected.style.display = "flex";
-      dropArea.style.borderColor = "var(--accent-success)";
-
-      // Temporarily remove required attribute
-      fileInput.removeAttribute('required');
+      selectedFiles = [{
+        name: "demo_resume.pdf",
+        size: 46899,
+        type: "application/pdf"
+      }];
+      updateFilesUI();
     });
 
-    // Update File UI State
-    function updateFileState(file) {
-      // Validate File Extension
+    // Filter and add files to active list
+    function addFilesToList(files) {
       const allowedExtensions = /(\.pdf|\.docx|\.doc)$/i;
-      if (!allowedExtensions.exec(file.name)) {
-        alert("Unsupported format. Please upload a PDF or Word document (.docx, .doc).");
+      const uniqueFiles = [];
+      const duplicates = [];
+
+      files.forEach(file => {
+        if (!allowedExtensions.exec(file.name)) {
+          alert(`Skipping file: "${file.name}" (Unsupported format. Only PDF and Word docs are allowed)`);
+          return;
+        }
+
+        // Check if the file is already selected by comparing the name
+        const isDuplicate = selectedFiles.some(existingFile => existingFile.name === file.name);
+        if (isDuplicate) {
+          duplicates.push(file.name);
+        } else {
+          uniqueFiles.push(file);
+        }
+      });
+
+      if (duplicates.length > 0) {
+        alert(`Skipping duplicate file${duplicates.length > 1 ? 's' : ''}: ${duplicates.join(', ')}`);
+      }
+
+      if (selectedFiles.length + uniqueFiles.length > 99) {
+        alert("Maximum limit of 99 files reached. Only the first 99 files will be processed.");
+        const remainingSlots = 99 - selectedFiles.length;
+        selectedFiles.push(...uniqueFiles.slice(0, remainingSlots));
+      } else {
+        selectedFiles.push(...uniqueFiles);
+      }
+
+      updateFilesUI();
+    }
+
+    // Update File UI State (showing individual files)
+    function updateFilesUI() {
+      if (selectedFiles.length === 0) {
         resetFileState();
         return;
       }
 
-      selectedFileName.innerText = file.name;
-
-      // Calculate readable size
-      let sizeText = "";
-      if (file.size < 1024 * 1024) {
-        sizeText = (file.size / 1024).toFixed(1) + " KB";
-      } else {
-        sizeText = (file.size / (1024 * 1024)).toFixed(1) + " MB";
-      }
-      selectedFileSize.innerText = sizeText;
-
+      // Hide prompt, show files area
       dropZonePrompt.style.display = "none";
       dropZoneSelected.style.display = "flex";
       dropArea.style.borderColor = "var(--accent-success)";
+
+      // Update badge
+      document.getElementById("filesCountBadge").innerText = `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} selected`;
+
+      // Render list
+      const listContainer = document.getElementById("selectedFilesList");
+      listContainer.innerHTML = "";
+
+      selectedFiles.forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "selected-file-item";
+
+        // Size calculation
+        let sizeText = "";
+        if (file.size < 1024 * 1024) {
+          sizeText = (file.size / 1024).toFixed(1) + " KB";
+        } else {
+          sizeText = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+        }
+
+        item.innerHTML = `
+          <div class="file-details">
+            <svg class="file-item-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span class="file-item-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+            <span class="file-item-size">${sizeText}</span>
+          </div>
+          <button type="button" class="btn-remove-item" data-index="${index}" title="Remove file">
+            <svg viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        `;
+        listContainer.appendChild(item);
+      });
+
+      // Bind remove buttons
+      listContainer.querySelectorAll(".btn-remove-item").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const idx = parseInt(btn.getAttribute("data-index"));
+          selectedFiles.splice(idx, 1);
+          updateFilesUI();
+        });
+      });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return "";
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     // Reset File UI State
     function resetFileState() {
       fileInput.value = "";
+      selectedFiles = [];
       useSample = false;
       dropZonePrompt.style.display = "flex";
       dropZoneSelected.style.display = "none";
       dropArea.style.borderColor = "rgba(255, 255, 255, 0.12)";
-      fileInput.setAttribute('required', 'required');
     }
 
-    // Auto submit if target role changes and file is already loaded
+    // Auto submit if target role changes and files are already loaded
     roleSelect.addEventListener('change', () => {
-      if (fileInput.files.length > 0) {
+      // Skip if a submission is already in progress to prevent parallel requests
+      if (isSubmitting) return;
+      if (selectedFiles.length > 0 || useSample) {
         form.requestSubmit();
       }
     });
 
+    // Display details of a specific candidate
+    function showCandidateDetails(candidate) {
+      const detailSection = document.getElementById("candidateDetailSection");
+      detailSection.style.display = "block";
+
+      // Update name and role
+      const roleLabel = candidate.role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      document.getElementById("resRole").innerText = `${candidate.filename} — ${roleLabel}`;
+
+      const percentage = candidate.percentage || 0;
+      const atsScore = candidate.ats_score || 0;
+
+      // Count-up value animations
+      animateValue("resPercent", 0, Math.round(percentage), 1000);
+      animateValue("resAtsPercent", 0, atsScore, 1000);
+
+      // Animate Keyword Match Gauge
+      const circleFill = document.getElementById("gaugeFill");
+      const strokeOffset = 314.16 - (314.16 * percentage) / 100;
+      circleFill.style.strokeDashoffset = strokeOffset;
+
+      // Animate ATS Score Gauge
+      const circleAtsFill = document.getElementById("gaugeAtsFill");
+      const strokeAtsOffset = 314.16 - (314.16 * atsScore) / 100;
+      circleAtsFill.style.strokeDashoffset = strokeAtsOffset;
+
+      // Status details
+      const statusPill = document.getElementById("resStatusPill");
+      const statusText = document.getElementById("resStatus");
+      const statusIcon = document.getElementById("statusPillIcon");
+      const statusDesc = document.getElementById("resStatusDesc");
+
+      if (candidate.status === "Eligible") {
+        statusText.innerText = "Shortlisted";
+        statusPill.className = "status-pill eligible";
+        statusIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
+        statusDesc.innerText = `Overall ATS Score (${atsScore}/100) is strong. Candidate profile is highly recommended.`;
+      } else if (candidate.status === "Error") {
+        statusText.innerText = "Error";
+        statusPill.className = "status-pill needs-revision";
+        statusIcon.innerHTML = `<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>`;
+        statusDesc.innerText = `There was an error parsing this document: ${candidate.error}`;
+      } else {
+        statusText.innerText = "Requires Review";
+        statusPill.className = "status-pill needs-revision";
+        statusIcon.innerHTML = `<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>`;
+        statusDesc.innerText = `Overall ATS Score (${atsScore}/100) is below threshold. Manual verification is recommended.`;
+      }
+
+      // Process skills found
+      const skillsFoundContainer = document.getElementById("resSkillsFound");
+      skillsFoundContainer.innerHTML = "";
+      const foundCount = candidate.skills_found ? candidate.skills_found.length : 0;
+      document.getElementById("matchedCount").innerText = `${foundCount} found`;
+
+      if (foundCount === 0) {
+        skillsFoundContainer.innerHTML = `<span class="no-skills-msg">No matching core skills identified.</span>`;
+      } else {
+        candidate.skills_found.forEach((skill, idx) => {
+          const span = document.createElement('span');
+          span.className = "skill-badge found pop-in";
+          span.style.setProperty('--i', idx);
+          span.innerText = skill;
+          skillsFoundContainer.appendChild(span);
+        });
+      }
+
+      // Process skills missing
+      const skillsMissingContainer = document.getElementById("resSkillsMissing");
+      skillsMissingContainer.innerHTML = "";
+      const missingCount = candidate.skills_missing ? candidate.skills_missing.length : 0;
+      document.getElementById("missingCount").innerText = `${missingCount} missing`;
+
+      if (missingCount === 0) {
+        skillsMissingContainer.innerHTML = `<span class="no-skills-msg">Excellent! All required core skills are present.</span>`;
+      } else {
+        candidate.skills_missing.forEach((skill, idx) => {
+          const span = document.createElement('span');
+          span.className = "skill-badge missing pop-in";
+          span.style.setProperty('--i', idx);
+          span.innerText = skill;
+          skillsMissingContainer.appendChild(span);
+        });
+      }
+
+      // Process suggestions
+      const suggestionsContainer = document.getElementById("resSuggestions");
+      suggestionsContainer.innerHTML = "";
+
+      if (!candidate.suggestions || candidate.suggestions.length === 0) {
+        suggestionsContainer.innerHTML = `<li class="suggestion-item pop-in" style="--i: 0">Your resume is perfectly optimized! No improvements needed.</li>`;
+      } else {
+        candidate.suggestions.forEach((suggestion, idx) => {
+          const li = document.createElement('li');
+          li.className = "suggestion-item pop-in";
+          li.style.setProperty('--i', idx + 2); // staggered offset
+          li.innerText = suggestion;
+          suggestionsContainer.appendChild(li);
+        });
+      }
+    }
+
     // Form Submission
     form.onsubmit = async (e) => {
       e.preventDefault();
-      if (!useSample && fileInput.files.length === 0) {
-        alert("Please upload a candidate resume document.");
+      // Prevent parallel submissions (e.g. rapid role switching)
+      if (isSubmitting) return;
+      if (!useSample && selectedFiles.length === 0) {
+        alert("Please upload at least one candidate resume document.");
         return;
       }
+
+      isSubmitting = true;
 
       // 1. Enter Loading State
       const emptyState = document.getElementById("emptyState");
       const loadingState = document.getElementById("loadingState");
       const resultsContent = document.getElementById("resultsContent");
+      const leaderboardSection = document.getElementById("leaderboardSection");
       const loadingStatusText = document.getElementById("loadingStatusText");
 
       emptyState.style.display = "none";
       resultsContent.style.display = "none";
+      leaderboardSection.style.display = "none";
       loadingState.style.display = "block";
 
-      // Disable submission while executing
+      // Disable submission and role dropdown while executing
       btnSubmit.disabled = true;
-      btnSubmit.querySelector('span').innerText = "Screening CV...";
+      roleSelect.disabled = true;
+      btnSubmit.querySelector('span').innerText = "Screening CVs...";
 
       // Fake Loading messages to feel like real AI processing
       const loadingPhrases = [
@@ -1449,7 +1827,7 @@
         "Extracting profile credentials...",
         "Running semantic background matches...",
         "Calculating candidate compliance index...",
-        "Generating recruitment report..."
+        "Generating recruitment reports..."
       ];
       let phraseIndex = 0;
       const statusInterval = setInterval(() => {
@@ -1464,7 +1842,9 @@
       if (useSample) {
         formData.append("use_sample", "true");
       } else {
-        formData.append("resume", fileInput.files[0]);
+        selectedFiles.forEach(file => {
+          formData.append("resumes", file);
+        });
       }
       formData.append("role", roleSelect.value);
 
@@ -1485,115 +1865,68 @@
           loadingState.style.display = "none";
           resultsContent.style.display = "block";
 
-          // Update data elements
-          const roleLabel = data.role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-          document.getElementById("resRole").innerText = roleLabel;
-
-          const percentage = data.percentage || 0;
-          const atsScore = data.ats_score || 0;
-
-          // Count-up value animations
-          animateValue("resPercent", 0, Math.round(percentage), 1200);
-          animateValue("resAtsPercent", 0, atsScore, 1200);
-
-          // Animate Keyword Match Gauge
-          const circleFill = document.getElementById("gaugeFill");
-          const strokeOffset = 314.16 - (314.16 * percentage) / 100;
-          circleFill.style.strokeDashoffset = strokeOffset;
-
-          // Animate ATS Score Gauge
-          const circleAtsFill = document.getElementById("gaugeAtsFill");
-          const strokeAtsOffset = 314.16 - (314.16 * atsScore) / 100;
-          circleAtsFill.style.strokeDashoffset = strokeAtsOffset;
-
-          // Status details
-          const statusPill = document.getElementById("resStatusPill");
-          const statusText = document.getElementById("resStatus");
-          const statusIcon = document.getElementById("statusPillIcon");
-          const statusDesc = document.getElementById("resStatusDesc");
-
-          if (data.status === "Eligible") {
-            statusText.innerText = "Shortlisted";
-            statusPill.className = "status-pill eligible";
-            statusIcon.innerHTML = `<polyline points="20 6 9 17 4 12"></polyline>`;
-            statusDesc.innerText = `Overall ATS Score (${atsScore}/100) is strong. Candidate profile is highly recommended.`;
-
-            // Confetti party
-            triggerConfetti();
-          } else {
-            statusText.innerText = "Requires Review";
-            statusPill.className = "status-pill needs-revision";
-            statusIcon.innerHTML = `<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>`;
-            statusDesc.innerText = `Overall ATS Score (${atsScore}/100) is below threshold. Manual verification is recommended.`;
-          }
-
-          // Process skills found
-          const skillsFoundContainer = document.getElementById("resSkillsFound");
-          skillsFoundContainer.innerHTML = "";
-          const foundCount = data.skills_found.length;
-          document.getElementById("matchedCount").innerText = `${foundCount} found`;
-
-          if (foundCount === 0) {
-            skillsFoundContainer.innerHTML = `<span class="no-skills-msg">No matching core skills identified.</span>`;
-          } else {
-            data.skills_found.forEach((skill, idx) => {
-              const span = document.createElement('span');
-              span.className = "skill-badge found pop-in";
-              span.style.setProperty('--i', idx);
-              span.innerText = skill;
-              skillsFoundContainer.appendChild(span);
+          const leaderboardList = document.getElementById("leaderboardList");
+          
+          if (data.candidates && data.candidates.length > 0) {
+            // Show leaderboard
+            leaderboardSection.style.display = "block";
+            leaderboardList.innerHTML = "";
+            document.getElementById("leaderboardCount").innerText = `${data.candidates.length} candidate${data.candidates.length > 1 ? 's' : ''}`;
+            
+            data.candidates.forEach((cand, idx) => {
+              const row = document.createElement("div");
+              row.className = `leaderboard-row ${idx === 0 ? 'active' : ''}`;
+              
+              const cleanStatus = cand.status === "Eligible" ? "eligible" : (cand.status === "Error" ? "error" : "review");
+              const displayStatus = cand.status === "Eligible" ? "Shortlisted" : (cand.status === "Error" ? "Error" : "Review");
+              
+              row.innerHTML = `
+                <span class="leaderboard-candidate-name" title="${escapeHtml(cand.filename)}">${escapeHtml(cand.filename)}</span>
+                <span class="leaderboard-status-badge ${cleanStatus}">${displayStatus}</span>
+                <span class="leaderboard-score-badge">${cand.ats_score}</span>
+              `;
+              
+              row.addEventListener("click", () => {
+                leaderboardList.querySelectorAll(".leaderboard-row").forEach(r => r.classList.remove("active"));
+                row.classList.add("active");
+                showCandidateDetails(cand);
+              });
+              
+              leaderboardList.appendChild(row);
             });
-          }
-
-          // Process skills missing
-          const skillsMissingContainer = document.getElementById("resSkillsMissing");
-          skillsMissingContainer.innerHTML = "";
-          const missingCount = data.skills_missing ? data.skills_missing.length : 0;
-          document.getElementById("missingCount").innerText = `${missingCount} missing`;
-
-          if (missingCount === 0) {
-            skillsMissingContainer.innerHTML = `<span class="no-skills-msg">Excellent! All required core skills are present.</span>`;
+            
+            // Show details of the first candidate by default
+            showCandidateDetails(data.candidates[0]);
+            
+            // Check if any candidate was shortlisted for confetti!
+            const hasShortlisted = data.candidates.some(c => c.status === "Eligible");
+            if (hasShortlisted) {
+              triggerConfetti();
+            }
           } else {
-            data.skills_missing.forEach((skill, idx) => {
-              const span = document.createElement('span');
-              span.className = "skill-badge missing pop-in";
-              span.style.setProperty('--i', idx);
-              span.innerText = skill;
-              skillsMissingContainer.appendChild(span);
-            });
+            leaderboardSection.style.display = "none";
+            document.getElementById("candidateDetailSection").style.display = "none";
           }
 
-          // Process suggestions
-          const suggestionsContainer = document.getElementById("resSuggestions");
-          suggestionsContainer.innerHTML = "";
-
-          if (!data.suggestions || data.suggestions.length === 0) {
-            suggestionsContainer.innerHTML = `<li class="suggestion-item pop-in" style="--i: 0">Your resume is perfectly optimized! No improvements needed.</li>`;
-          } else {
-            data.suggestions.forEach((suggestion, idx) => {
-              const li = document.createElement('li');
-              li.className = "suggestion-item pop-in";
-              li.style.setProperty('--i', idx + 2); // staggered offset
-              li.innerText = suggestion;
-              suggestionsContainer.appendChild(li);
-            });
-          }
-
-          // Reset button text
+          // Re-enable controls
           btnSubmit.disabled = false;
+          roleSelect.disabled = false;
           btnSubmit.querySelector('span').innerText = "Screen Candidate Profile";
+          isSubmitting = false;
 
         }, 800);
 
       } catch (error) {
         clearInterval(statusInterval);
         console.error("Analysis processing error:", error);
-        alert("Failed to analyze resume. Please try again.");
+        alert("Failed to analyze resumes. Please try again.");
 
         loadingState.style.display = "none";
         emptyState.style.display = "block";
         btnSubmit.disabled = false;
+        roleSelect.disabled = false;
         btnSubmit.querySelector('span').innerText = "Screen Candidate Profile";
+        isSubmitting = false;
       }
     };
 
